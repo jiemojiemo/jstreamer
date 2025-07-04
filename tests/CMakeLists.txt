@@ -4,6 +4,7 @@ add_executable(jstreamer_unit_test
         test_base_element.cpp
         test_property_spec_manager.cpp
         test_property_value_manager.cpp
+        test_signal_manager.cpp
 )
 target_link_libraries(jstreamer_unit_test PRIVATE
         gmock_main
