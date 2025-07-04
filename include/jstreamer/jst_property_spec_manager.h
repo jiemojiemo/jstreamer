@@ -17,7 +17,7 @@ struct PropertySpec {
   std::any max_value;
 };
 
-class PropertyMap {
+class PropertySpecManager {
 public:
   const PropertySpec* getPropertySpec(const std::string& property_name) const {
     if (specs_.find(property_name) != specs_.end()) {
@@ -28,20 +28,18 @@ public:
 
   void registerProperty(const PropertySpec& spec) {
     specs_[spec.name] = spec;
-    values_[spec.name] = spec.default_value;
   }
 
-  std::optional<std::any> getPropertyValue(const std::string& name) const {
-    if (values_.find(name) != values_.end()) {
-      return values_.at(name);
-    }else {
-      return std::nullopt;
-    }
+  bool isRegisteredProperty(const std::string& property_name) const {
+    return  specs_.find(property_name) != specs_.end();
+  }
+
+  const std::unordered_map<std::string, PropertySpec>& getAllProperties() const {
+    return specs_;
   }
 
 private:
   std::unordered_map<std::string, PropertySpec> specs_;
-  std::unordered_map<std::string, std::any> values_;
 };
 }
 
