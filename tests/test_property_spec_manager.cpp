@@ -6,17 +6,17 @@
 
 using namespace testing;
 
-class APropertyMap : public Test {
+class APropertyManager : public Test {
 public:
   jstreamer::PropertySpecManager properties;
 };
 
-TEST_F(APropertyMap, getPropertySpecReturnsNullIfNeverRegresitered) {
+TEST_F(APropertyManager, getPropertySpecReturnsNullIfNeverRegresitered) {
   auto meta = properties.getPropertySpec("non_existent_property");
   ASSERT_THAT(meta, IsNull());
 }
 
-TEST_F(APropertyMap, canGetPropertySpecAfterRegistration) {
+TEST_F(APropertyManager, canGetPropertySpecAfterRegistration) {
   jstreamer::PropertySpec spec = {"test_property", "Test Property", 42, 0, 100};
   properties.registerProperty(spec);
 
@@ -28,7 +28,7 @@ TEST_F(APropertyMap, canGetPropertySpecAfterRegistration) {
   ASSERT_THAT(std::any_cast<int>(meta->default_value), Eq(42));
 }
 
-TEST_F(APropertyMap, canCheckIfPropertyRegistered) {
+TEST_F(APropertyManager, canCheckIfPropertyRegistered) {
   jstreamer::PropertySpec spec = {"test_property", "Test Property", 42, 0, 100};
   properties.registerProperty(spec);
 
@@ -36,22 +36,17 @@ TEST_F(APropertyMap, canCheckIfPropertyRegistered) {
   ASSERT_FALSE(properties.isRegisteredProperty("abc"));
 }
 
-// TEST_F(APropertyMap, getPropertyValueWithDefaultValueAfterRegistration) {
-//   jstreamer::PropertySpec spec = {"property", "Another Property", 3.14f, 0.0f, 10.0f};
-//   properties.registerProperty(spec);
-//
-//   auto value = properties.getPropertyValue(spec.name);
-//
-//   ASSERT_TRUE(value.has_value());
-//   ASSERT_TRUE(value->type() == typeid(float));
-//   ASSERT_THAT(std::any_cast<float>(*value), FloatEq(3.14f));
-// }
-//
-// TEST_F(APropertyMap, getNullPropertyIfNameNotRegistered) {
-//   jstreamer::PropertySpec spec = {"property", "Another Property", 3.14f, 0.0f, 10.0f};
-//   properties.registerProperty(spec);
-//
-//   auto value = properties.getPropertyValue("non_existent_property");
-//
-//   ASSERT_FALSE(value.has_value());
-// }
+TEST_F(APropertyManager, registerThrowsIfValuesTypeNotMatch) {
+  auto defaultValue = 1.0;
+  auto minValue = 0;
+  auto maxValue = 100L;
+  jstreamer::PropertySpec spec = {"test_property", "Test Property", defaultValue, minValue, maxValue};
+
+  ASSERT_THROW(properties.registerProperty(spec), std::invalid_argument);
+}
+
+TEST_F(APropertyManager, registerThrowsIfPropertyNameIsEmpty) {
+  jstreamer::PropertySpec spec = {"", "Test Property", 42, 0, 100};
+
+  ASSERT_THROW(properties.registerProperty(spec), std::invalid_argument);
+}
