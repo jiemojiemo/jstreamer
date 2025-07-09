@@ -50,3 +50,11 @@ TEST_F(APropertyManager, registerThrowsIfPropertyNameIsEmpty) {
 
   ASSERT_THROW(properties.registerProperty(spec), std::invalid_argument);
 }
+
+TEST_F(APropertyManager, CanCheckIsTypeMatch) {
+  jstreamer::PropertySpec spec = {"test_property", "Test Property", 42, 0, 100};
+  properties.registerProperty(spec);
+
+  ASSERT_TRUE(properties.isTypeMatch("test_property", typeid(int)));
+  ASSERT_FALSE(properties.isTypeMatch("test_property", typeid(double)));
+}

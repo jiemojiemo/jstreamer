@@ -41,6 +41,14 @@ public:
     return specs_;
   }
 
+  bool isTypeMatch(const std::string& property_name, const std::type_info& type) const {
+    if (!isRegisteredProperty(property_name)) {
+      return false;
+    }
+    const auto& spec = specs_.at(property_name);
+    return spec.default_value.type() == type && spec.min_value.type() == type && spec.max_value.type() == type;
+  }
+
 private:
   static bool isSpecValueTypeMatched(const PropertySpec& spec) {
     return hasSampleType(spec.default_value, spec.min_value) && hasSampleType(spec.min_value, spec.max_value);

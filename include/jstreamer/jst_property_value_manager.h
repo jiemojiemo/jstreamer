@@ -11,10 +11,7 @@ public:
   explicit PropertyValueManager(const PropertySpecManager& specManager)
       : specManager_(specManager)
   {
-    for (const auto& [name, spec] : specManager_.getAllProperties()) {
-      // Initialize values with default values from specs
-      values_[name] = spec.default_value;
-    }
+    loadDefaults();
   }
 
   std::optional<std::any> getProperty(const std::string& name) const {
@@ -22,6 +19,33 @@ public:
       return std::nullopt;
     }
     return values_.at(name);
+  }
+
+  void setProperty(const std::string& name, const std::any& value) {
+    if (!specManager_.isRegisteredProperty(name)) {
+      throw std::runtime_error("Property not registered: " + name);
+    }
+
+    if(!specManager_.isTypeMatch(name, value.type())) {
+      throw std::runtime_error("Type mismatch for property: " + name);
+    }
+
+    values_[name] = value;
+  }
+
+  const std::unordered_map<std::string, std::any>& getAllValues() const {
+    return values_;
+  }
+
+  std::unordered_map<std::string, std::any> getAllValues() {
+    return values_;
+  }
+
+  void loadDefaults() {
+    for (const auto& [name, spec] : specManager_.getAllProperties()) {
+      // Initialize values with default values from specs
+      values_[name] = spec.default_value;
+    }
   }
 
 private:

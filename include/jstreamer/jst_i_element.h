@@ -12,6 +12,8 @@ public:
 
   virtual std::string getName() const = 0;
   virtual void setName(const std::string &name) = 0;
+  virtual void setProperty(const std::string &name, const std::any& value) = 0;
+  virtual std::optional<std::any> getProperty(const std::string& name) = 0;
 };
 }
 
