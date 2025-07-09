@@ -87,3 +87,14 @@ TEST_F(ASignalManager, EmitTriggerConnectedCallbackWithUserData) {
 
   ASSERT_THAT(got_userdata, Eq(userdata));
 }
+
+TEST_F(ASignalManager, CanGetSignalInfo) {
+  auto name = "signal";
+  s.registerSignal<int>(name);
+
+  auto signals = s.getSignals();
+
+  ASSERT_THAT(signals.size(), Eq(1));
+  ASSERT_THAT(signals["signal"].name, "signal");
+  ASSERT_THAT(signals["signal"].param_types.size(), 1);
+}

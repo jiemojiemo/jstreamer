@@ -51,6 +51,8 @@ public:
   }
 
   size_t getSignalCount() const { return signals_.size(); }
+  const std::unordered_map<std::string, SignalInfo>& getSignals() const { return signals_; }
+
 
 private:
   template<typename... Args, typename Callback, size_t... Is>
