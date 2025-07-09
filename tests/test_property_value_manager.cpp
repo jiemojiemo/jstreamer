@@ -39,7 +39,6 @@ TEST_F(APropertyValueManager, GetPropertyValueIfSpecRegistered) {
 TEST_F(APropertyValueManager, SetPropertyFailedIfSpecNotRegistered) {
   PropertyValueManager valueManager(specManager);
 
-  // Attempt to set a property that is not registered
   auto value = valueManager.getProperty("non_existent_property");
   ASSERT_FALSE(value.has_value());
 }
@@ -47,7 +46,6 @@ TEST_F(APropertyValueManager, SetPropertyFailedIfSpecNotRegistered) {
 TEST_F(APropertyValueManager, SetPropertyThrowsIfSpecNotRegistered) {
   PropertyValueManager valueManager(specManager);
 
-  // Attempt to set a property that is not registered
   ASSERT_THROW(valueManager.setProperty("non_existent_property", 100),
                std::runtime_error);
 }
@@ -58,7 +56,6 @@ TEST_F(APropertyValueManager, SetPropertyFailedIfTypeNotMatched) {
 
   PropertyValueManager valueManager(specManager);
 
-  // Attempt to set a property with a type that does not match the spec
   ASSERT_THROW(
       valueManager.setProperty("test_property", std::string("not an int")),
       std::runtime_error);
