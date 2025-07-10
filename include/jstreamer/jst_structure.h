@@ -85,6 +85,24 @@ public:
         return true;
     }
 
+    bool isSubsetOf(const Structure& other) const {
+        if (name_ != other.name_) return false;
+        for (const auto& [key, value] : fields_) {
+            auto it = other.fields_.find(key);
+            if (it == other.fields_.end()) return false;
+            // 针对 jst_range 特殊处理
+            if (value.type() == typeid(jst_range) && it->second.type() == typeid(jst_range)) {
+                const auto& sub = std::any_cast<const jst_range&>(value);
+                const auto& sup = std::any_cast<const jst_range&>(it->second);
+                // jst_range 是 std::pair<double, double>，first为begin，second为end
+                if (sub.first < sup.first || sub.second > sup.second) return false;
+            } else {
+                if (!anyEquals(value, it->second)) return false;
+            }
+        }
+        return true;
+    }
+
 private:
     template<typename T>
     static constexpr bool is_supported_type() {

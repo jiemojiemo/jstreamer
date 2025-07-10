@@ -66,8 +66,6 @@ TEST_F(AStructure, CanCheckAFieldExists) {
   ASSERT_FALSE(structure.hasField("non_existent_field"));
 }
 
-
-
 TEST_F(AStructure, GetFieldReturnNulloptIfNameNotFound) {
   auto field_name = "abc";
   ASSERT_FALSE(structure.hasField(field_name));
@@ -75,7 +73,6 @@ TEST_F(AStructure, GetFieldReturnNulloptIfNameNotFound) {
   auto field = structure.getField(field_name);
   ASSERT_FALSE(field.has_value());
 }
-
 
 TEST_F(AStructure, GetFieldWhenNameFound) {
   auto field_name = "test_field";
@@ -160,4 +157,48 @@ TEST_F(AStructure, IsNotEuqalIfFieldTypesAreDifferent) {
   s2.setField("field1", 42.0f); // float
 
   ASSERT_FALSE(s1.isEqual(s2));
+}
+
+TEST_F(AStructure, IsSubsetOfOtherIfIsEqual) {
+  Structure s1("test");
+  Structure s2("test");
+
+  s1.setField("field1", 42);
+  s2.setField("field1", 42);
+
+  ASSERT_TRUE(s1.isSubsetOf(s2));
+}
+
+TEST_F(AStructure, IsSubsetOfOtherIfRangeFiledIsAllSubset) {
+  Structure s1("test");
+  Structure s2("test");
+  auto big_range = jst_range(0, 100);
+  auto small_range = jst_range(10, 20);
+  s1.setField("range1", small_range);
+  s2.setField("range1", big_range);
+  s1.setField("range2", small_range);
+  s2.setField("range2", big_range);
+
+  ASSERT_TRUE(s1.isSubsetOf(s2));
+}
+
+TEST_F(AStructure, IsNotSubsetIfFiledNameNotMatched) {
+  Structure s1("test");
+  Structure s2("test");
+  auto big_range = jst_range(0, 100);
+
+  s1.setField("range0", big_range);
+  s2.setField("range1", big_range);
+
+  ASSERT_FALSE(s1.isSubsetOf(s2));
+}
+
+TEST_F(AStructure, IsNotSubSetIfNameNotMatched) {
+  Structure s1("s1");
+  Structure s2("s2");
+  auto big_range = jst_range(0, 100);
+  s1.setField("range1", big_range);
+  s2.setField("range1", big_range);
+
+  ASSERT_FALSE(s1.isSubsetOf(s2));
 }
