@@ -3,6 +3,7 @@
 //
 #include <gmock/gmock.h>
 #include <jstreamer/jst_structure.h>
+#include <jstreamer/jst_type.h>
 
 using namespace jstreamer;
 using namespace testing;
@@ -20,25 +21,42 @@ TEST_F(AStructure, FieldIsEmptyWhenInit) {
   ASSERT_THAT(structure.getFieldNames().size(), Eq(0));
 }
 
-TEST_F(AStructure, SetFieldIncreaseFieldCount) {
-  struct Field {
+// 可重构点：减少重复断言代码，提升可读性
+// 1. 针对 SetFiledSuccessIfTypeSupported 测试，使用结构体和循环批量断言
+// 2. 针对 SetFieldIncreaseFieldCount、RemoveFieldDecreasesFieldCount、CanRemoveAllFields 等，使用辅助函数减少重复
+TEST_F(AStructure, SetFiledSuccessIfTypeSupported) {
+  struct FieldTest {
     std::string name;
     std::any value;
   };
-  std::vector<Field> fields = {
-    {"test_field_int", 42},
-    {"test_field_float", 42.0f},
-    {"test_field_double", 42.0},
-    {"test_field_string", std::string("42")}
+  std::vector<FieldTest> fields = {
+    {"jst_bool", static_cast<jst_bool>(true)},
+    {"jst_int", static_cast<jst_int>(0)},
+    {"jst_int64", static_cast<jst_int64>(0)},
+    {"jst_string", jst_string("abc")},
+    {"jst_float", static_cast<jst_float>(0)},
+    {"jst_double", static_cast<jst_double>(0)},
+    {"jst_range", jst_range(0, 100)}
   };
   for (const auto& f : fields) {
     structure.setField(f.name, f.value);
+    ASSERT_TRUE(structure.getField(f.name).has_value()) << f.name << " field should be set successfully";
   }
+}
 
-  ASSERT_THAT(structure.getFieldNames().size(), Eq(fields.size()));
-  for (const auto& f : fields) {
-    ASSERT_THAT(structure.getFieldNames(), Contains(f.name));
-  }
+TEST_F(AStructure, SetFiledThrowsIfTypeNotSupported) {
+  auto values_not_support = std::vector<std::any>();
+
+  ASSERT_THROW(structure.setField("a", values_not_support), std::runtime_error);
+}
+
+TEST_F(AStructure, SetFieldIncreaseFieldCount) {
+  ASSERT_THAT(structure.getFieldNames().size(), Eq(0));
+
+  structure.setField("a", 1);
+  structure.setField("b", 2);
+
+  ASSERT_THAT(structure.getFieldNames().size(), Eq(2));
 }
 
 TEST_F(AStructure, CanCheckAFieldExists) {
@@ -48,6 +66,8 @@ TEST_F(AStructure, CanCheckAFieldExists) {
   ASSERT_FALSE(structure.hasField("non_existent_field"));
 }
 
+
+
 TEST_F(AStructure, GetFieldReturnNulloptIfNameNotFound) {
   auto field_name = "abc";
   ASSERT_FALSE(structure.hasField(field_name));
@@ -55,6 +75,7 @@ TEST_F(AStructure, GetFieldReturnNulloptIfNameNotFound) {
   auto field = structure.getField(field_name);
   ASSERT_FALSE(field.has_value());
 }
+
 
 TEST_F(AStructure, GetFieldWhenNameFound) {
   auto field_name = "test_field";
